@@ -1,31 +1,33 @@
 # READfareed
-version: '3'
+Run the app in Kubernetes
+The folder k8s-specifications contains the yaml specifications of the Voting App's services.
 
-services:
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-  db:
-    image: postgres:9.4
-    environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-    ports:
-      - "5432:5432"
-  vote:
-    image: dockersamples/examplevotingapp_vote:before
-    ports:
-      - "5000:80"
-    deploy:
-      replicas: 1
-  result:
-    image: dockersamples/examplevotingapp_result:before
-    ports:
-      - "5001:80"
-  worker:
-    image: dockersamples/examplevotingapp_worker
-  visualizer:
-    image: dockersamples/visualizer:stable
-    ports: 
-      - "8080:8080"
+First create the vote namespace
+
+$ kubectl create namespace vote
+Run the following command to create the deployments and services objects:
+
+$ kubectl create -f k8s-specifications/
+deployment "db" created
+service "db" created
+deployment "redis" created
+service "redis" created
+deployment "result" created
+service "result" created
+deployment "vote" created
+service "vote" created
+deployment "worker" created
+The vote interface is then available on port 31000 on each host of the cluster, the result one is available on port 31001.
+
+Architecture
+Architecture diagram
+
+A front-end web app in Python or ASP.NET Core which lets you vote between two options
+A Redis or NATS queue which collects new votes
+A .NET Core, Java or .NET Core 2.1 worker which consumes votes and stores them in…
+A Postgres or TiDB database backed by a Docker volume
+A Node.js or ASP.NET Core SignalR webapp which shows the results of the voting in real time
+Notes
+The voting application only accepts one vote per client. It does not register votes if a vote has already been submitted from a client.
+
+This isn't an example of a properly architected perfectly designed distributed app... it's just a simple example of the various types of pieces and languages you might see (queues, persistent data, etc), and how to deal with them in Docker at a basic level.
